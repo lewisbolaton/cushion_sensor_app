@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 class TitleText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return FractionallySizedBox(
-      widthFactor: 0.8,
-      child: Container(
+    return(Container(
         child: Text(
-            'Pressure Viewing Map',
+            'Pressure\nViewing Map',
+            textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 32,
               color: Colors.black45,
@@ -18,7 +17,6 @@ class TitleText extends StatelessWidget {
             bottom: BorderSide(width: 4, color: Colors.black45),
           ),
         ),
-      ),
-    );
+      ));
   }
 }
