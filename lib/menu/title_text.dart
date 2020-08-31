@@ -9,12 +9,12 @@ class TitleText extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 32,
-              color: Colors.black45,
+              color: Colors.black,
             )),
         decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(width: 4, color: Colors.black45),
-            bottom: BorderSide(width: 4, color: Colors.black45),
+            top: BorderSide(width: 3, color: Colors.black),
+            bottom: BorderSide(width: 3, color: Colors.black),
           ),
         ),
       ));

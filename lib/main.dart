@@ -64,7 +64,7 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
       theme: ThemeData(
         backgroundColor: Colors.teal,
       ),
-      home: (_appState != 'idle') ? Menu(goToViewing) : Viewer(returnToIdle, _connect, sensorValues),
+      home: (_appState == 'idle') ? Menu(goToViewing) : Viewer(returnToIdle, _connect, sensorValues),
     );
   }
 

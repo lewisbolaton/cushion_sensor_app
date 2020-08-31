@@ -9,11 +9,12 @@ class MenuButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 160,
-      height: 160,
+      width: 140,
+      height: 140,
       margin: const EdgeInsets.symmetric(vertical: 12),
-      child: RaisedButton(
+      child: FlatButton(
         shape: CircleBorder(),
+        color: Colors.white,
         onPressed: clickHandler,
         child: Text(
           this.buttonText,
