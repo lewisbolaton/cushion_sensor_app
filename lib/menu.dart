@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 //Widget imports
 import './menu/title_text.dart';
 import './menu/menu_button.dart';
+import './menu/connection_dialog.dart';
 
 class Menu extends StatelessWidget {
   final Function goToViewing;
@@ -28,7 +28,9 @@ class Menu extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   MenuButton('Start Viewing Pressure Generated Map', goToViewing),
-                  MenuButton('Exit', null),
+                  MenuButton('Exit', () => {
+                    showDialog(context: context, barrierDismissible: true, builder: (_) => ConnectionDialog()),
+                  }),
                 ]
               ),
             ),
