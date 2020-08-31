@@ -61,7 +61,10 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: (_appState == 'idle') ? Menu(goToViewing) : Viewer(returnToIdle, _connect, sensorValues),
+      theme: ThemeData(
+        backgroundColor: Colors.teal,
+      ),
+      home: (_appState != 'idle') ? Menu(goToViewing) : Viewer(returnToIdle, _connect, sensorValues),
     );
   }
 

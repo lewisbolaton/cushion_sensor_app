@@ -12,7 +12,7 @@ class ViewerBox extends StatelessWidget {
       height: 24,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.black45, width: 1.2),
+          border: Border.all(color: Colors.white, width: 1.5),
           color: generateRGBO(),
         ),
       ),

@@ -16,13 +16,18 @@ class ViewerGrid extends StatefulWidget {
 class _ViewerGridState extends State<ViewerGrid> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [...this.widget.sensorValues.map((row) => Container(
-        child: Row(
-          children: [...row.map((box) => ViewerBox(box))],
-        ),
-        width: double.infinity,
-      ))]
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 32),
+      child: Column(
+        children: [
+          ...this.widget.sensorValues.map((row) => Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ...row.map((box) => ViewerBox(box)),
+            ],
+          )),
+        ],
+      ),
     );
   }
 }

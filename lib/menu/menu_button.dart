@@ -11,7 +11,7 @@ class MenuButton extends StatelessWidget {
     return Container(
       width: 160,
       height: 160,
-      margin: const EdgeInsets.all(12),
+      margin: const EdgeInsets.symmetric(vertical: 12),
       child: RaisedButton(
         shape: CircleBorder(),
         onPressed: clickHandler,

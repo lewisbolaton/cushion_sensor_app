@@ -1,7 +1,9 @@
+import 'package:cushion_sensor_app/viewer/viewer_button.dart';
 import 'package:flutter/material.dart';
 
 //Import widgets
 import './viewer/viewer_grid.dart';
+import './viewer/viewer_button.dart';
 
 class Viewer extends StatefulWidget {
   final Function returnToIdle;
@@ -20,18 +22,23 @@ class _ViewerState extends State<Viewer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        title: Center(
+            child: Text(
+              'Pressure Map',
+              style: TextStyle(color: Colors.black,),
+            ),
+        ),
+      ),
       body: SafeArea(
         child: Column(
           children: [
             ViewerGrid(this.widget.sensorValues),
-            MaterialButton(
-              child: Text('Back'),
-              onPressed: this.widget.returnToIdle,
-            ),
-            MaterialButton(
-              child: Text('Exit'),
-              onPressed: null,
-            ),
+            ViewerButton('Back'),
+            ViewerButton('Exit'),
           ],
         ),
       ),
