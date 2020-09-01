@@ -36,14 +36,24 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
   bool get isConnected => connection != null && connection.isConnected;
 
   @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      navigatorKey: navigatorKey,
+      theme: ThemeData(
+        backgroundColor: Colors.teal,
+      ),
+      home: Menu(goToViewing),
+    );
+  }
+
+  @override
   void initState() {
     super.initState();
 
+    this._appState = 'idle';
     var rng = Random();
     sensorValues = List.generate(
         15, (_) => List.generate(15, (_) => rng.nextInt(100) / 100));
-
-    _appState = 'idle';
     initializeBTSettings();
   }
 
@@ -58,45 +68,44 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: navigatorKey,
-      theme: ThemeData(
-        backgroundColor: Colors.teal,
-      ),
-      /*
-      home: (_appState == 'idle')
-          ? Menu(goToViewing)
-          : Viewer(returnToIdle, _connect, sensorValues),
-      */
-      home: Menu(goToViewing),
+  void showConnectionDialog() {
+    showDialog(
+        context: navigatorKey.currentState.overlay.context,
+        barrierDismissible: true,
+        builder: (_) => ConnectionDialog(),
     );
   }
 
-  void goToViewing() async {
-    //Check if Bluetooth then connect to sensor
-    if (_bluetoothState != BluetoothState.STATE_ON) {
-      //await _connect();
-      BuildContext _context = navigatorKey.currentState.context;
-      Navigator.push(
-          _context,
-          MaterialPageRoute(builder: (_context) => Viewer(returnToIdle, _connect, sensorValues)),
-      );
-    } else {
-      showDialog(
-          context: navigatorKey.currentState.overlay.context,
-          barrierDismissible: true,
-          builder: (_) => ConnectionDialog());
+  void switchToViewScreen() {
+    setState(() => this._appState = 'viewing');
+    BuildContext _context = navigatorKey.currentState.context;
+    Navigator.push(
+      _context,
+      MaterialPageRoute(builder: (_context) => Viewer(returnToIdle, _connect, sensorValues)),
+    );
+  }
+
+  void switchToMenu() {
+    if (this._appState == 'viewing') {
+      Navigator.pop(navigatorKey.currentState.context);
+      setState(() => this._appState = 'idle');
     }
   }
 
-  void returnToIdle() {
-    _disconnect();
-    Navigator.pop(navigatorKey.currentState.context);
-    setState(() {
-      _appState = 'idle';
-    });
+  void goToViewing() async {
+    //Check if Bluetooth is enabled and connected
+    if (_bluetoothState == BluetoothState.STATE_ON) {
+      await _connect();
+      if (isConnected) {
+        switchToViewScreen();
+      }
+    } else {
+      showConnectionDialog();
+    }
+  }
+
+  void returnToIdle() async {
+    await this._disconnect();
   }
 
   void initializeBTSettings() {
@@ -109,21 +118,14 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
     _deviceState = 0;
     enableBluetooth();
 
-    FlutterBluetoothSerial.instance
-        .onStateChanged()
-        .listen((BluetoothState state) {
+    //Bluetooth settings listener
+    FlutterBluetoothSerial.instance.onStateChanged().listen((BluetoothState state) {
       setState(() {
         _bluetoothState = state;
       });
-      if (_appState == 'viewing' && state != BluetoothState.STATE_ON) {
-        connection.close();
-        showDialog(
-            context: navigatorKey.currentState.overlay.context,
-            barrierDismissible: true,
-            builder: (_) => ConnectionDialog());
-        setState(() {
-          _appState = 'idle';
-        });
+      if (state == BluetoothState.STATE_TURNING_OFF && this._appState == 'viewing') {
+        switchToMenu();
+        showConnectionDialog();
       }
     });
   }
@@ -167,9 +169,6 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
   Future<void> _connect() async {
     if (!isConnected) {
       await BluetoothConnection.toAddress(sensorAddress).then((_connection) {
-        setState(() {
-          _appState = 'viewing';
-        });
         connection = _connection;
 
         connection.input.listen((Uint8List data) {
@@ -180,25 +179,15 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
             sensorValues = chunkDoubles(flatValues, 15);
           });
         }).onDone(() {
-          showDialog(
-              context: navigatorKey.currentState.overlay.context,
-              barrierDismissible: true,
-              builder: (_) => ConnectionDialog());
-          setState(() => _appState = 'idle');
+          this.switchToMenu();
         });
       }).catchError((err) {
-        //For debugging
-        //print('Cannot connect, exception occurred');
-        //print(err);
-        showDialog(
-            context: navigatorKey.currentState.overlay.context,
-            barrierDismissible: true,
-            builder: (_) => ConnectionDialog());
+        showConnectionDialog();
       });
     }
   }
 
-  void _disconnect() async {
+  Future<void> _disconnect() async {
     await connection.close();
   }
 }
