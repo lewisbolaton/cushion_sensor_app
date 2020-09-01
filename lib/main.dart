@@ -8,18 +8,15 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 //Widget imports
 import './menu.dart';
 import './viewer.dart';
+import './menu/connection_dialog.dart';
 
 const String sensorAddress = 'B8:27:EB:7B:98:0B';
 
-void main() {
-  runApp(CushionSensorApp());
-}
+void main() => runApp(CushionSensorApp());
 
 class CushionSensorApp extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() {
-    return _CushionSensorAppState();
-  }
+  State<StatefulWidget> createState() => _CushionSensorAppState();
 }
 
 class _CushionSensorAppState extends State<CushionSensorApp> {
@@ -34,6 +31,8 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
 
   List<List<double>> sensorValues;
 
+  var navigatorKey = GlobalKey<NavigatorState>();
+
   bool get isConnected => connection != null && connection.isConnected;
 
   @override
@@ -41,7 +40,8 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
     super.initState();
 
     var rng = Random();
-    sensorValues = List.generate(15, (_) => List.generate(15, (_) => rng.nextInt(100)/100));
+    sensorValues = List.generate(
+        15, (_) => List.generate(15, (_) => rng.nextInt(100) / 100));
 
     _appState = 'idle';
     initializeBTSettings();
@@ -61,25 +61,39 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       theme: ThemeData(
         backgroundColor: Colors.teal,
       ),
-      home: (_appState == 'idle') ? Menu(goToViewing) : Viewer(returnToIdle, _connect, sensorValues),
+      /*
+      home: (_appState == 'idle')
+          ? Menu(goToViewing)
+          : Viewer(returnToIdle, _connect, sensorValues),
+      */
+      home: Menu(goToViewing),
     );
   }
 
-  void goToViewing() {
-    _connect();
-    if (isConnected) {
-      setState(() {
-        _appState = 'viewing';
-      });
+  void goToViewing() async {
+    //Check if Bluetooth then connect to sensor
+    if (_bluetoothState != BluetoothState.STATE_ON) {
+      //await _connect();
+      BuildContext _context = navigatorKey.currentState.context;
+      Navigator.push(
+          _context,
+          MaterialPageRoute(builder: (_context) => Viewer(returnToIdle, _connect, sensorValues)),
+      );
     } else {
-      print('Cannot view map. Connect device first');
+      showDialog(
+          context: navigatorKey.currentState.overlay.context,
+          barrierDismissible: true,
+          builder: (_) => ConnectionDialog());
     }
   }
 
   void returnToIdle() {
+    _disconnect();
+    Navigator.pop(navigatorKey.currentState.context);
     setState(() {
       _appState = 'idle';
     });
@@ -95,10 +109,22 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
     _deviceState = 0;
     enableBluetooth();
 
-    FlutterBluetoothSerial.instance.onStateChanged().listen((BluetoothState state) {
+    FlutterBluetoothSerial.instance
+        .onStateChanged()
+        .listen((BluetoothState state) {
       setState(() {
         _bluetoothState = state;
       });
+      if (_appState == 'viewing' && state != BluetoothState.STATE_ON) {
+        connection.close();
+        showDialog(
+            context: navigatorKey.currentState.overlay.context,
+            barrierDismissible: true,
+            builder: (_) => ConnectionDialog());
+        setState(() {
+          _appState = 'idle';
+        });
+      }
     });
   }
 
@@ -115,48 +141,60 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
   }
 
   List<List<int>> chunkInts(List<int> list, int size) {
-    if(list.length <= size){
+    if (list.length <= size) {
       return [list];
     }
     return [list.sublist(0, size), ...chunkInts(list.sublist(size), size)];
   }
 
   List<List<double>> chunkDoubles(List<double> list, int size) {
-    if(list.length <= size){
+    if (list.length <= size) {
       return [list];
     }
     return [list.sublist(0, size), ...chunkDoubles(list.sublist(size), size)];
   }
-  
+
   double decodeList(List<int> intBytes) {
     int s = (intBytes[3] >> 7) % 2;
-    int m = (intBytes[0] % pow(2, 8)) + ((intBytes[1] << 8) % pow(2, 16)) +
-        ((intBytes[2] << 16) % pow(2,23));
+    int m = (intBytes[0] % pow(2, 8)) +
+        ((intBytes[1] << 8) % pow(2, 16)) +
+        ((intBytes[2] << 16) % pow(2, 23));
     int e = (intBytes[3] % pow(2, 7)) * 2 + ((intBytes[2] >> 7) % 2);
 
-    return(pow(-1, s) * ( 1 + m * pow (2, -23)) * pow(2, e - 127));
+    return (pow(-1, s) * (1 + m * pow(2, -23)) * pow(2, e - 127));
   }
 
-  void _connect() async {
+  Future<void> _connect() async {
     if (!isConnected) {
-      await BluetoothConnection.toAddress(sensorAddress).then(( _connection) {
-        print('Connected to the sensor');
+      await BluetoothConnection.toAddress(sensorAddress).then((_connection) {
+        setState(() {
+          _appState = 'viewing';
+        });
         connection = _connection;
 
         connection.input.listen((Uint8List data) {
-          List<double> flatValues = chunkInts(data.toList(), 4).map((bytes) => decodeList(bytes)).toList();
+          List<double> flatValues = chunkInts(data.toList(), 4)
+              .map((bytes) => decodeList(bytes))
+              .toList();
           setState(() {
             sensorValues = chunkDoubles(flatValues, 15);
           });
+        }).onDone(() {
+          showDialog(
+              context: navigatorKey.currentState.overlay.context,
+              barrierDismissible: true,
+              builder: (_) => ConnectionDialog());
+          setState(() => _appState = 'idle');
         });
       }).catchError((err) {
-        print('Cannot connect, exception occurred');
-        print(err);
-        setState(() {
-          _appState = 'idle';
-        });
+        //For debugging
+        //print('Cannot connect, exception occurred');
+        //print(err);
+        showDialog(
+            context: navigatorKey.currentState.overlay.context,
+            barrierDismissible: true,
+            builder: (_) => ConnectionDialog());
       });
-      //show('Device connected');
     }
   }
 

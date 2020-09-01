@@ -25,7 +25,8 @@ class _ViewerState extends State<Viewer> {
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.blue,
+        automaticallyImplyLeading: false,
         title: Center(
             child: Text(
               'Pressure Map',
@@ -37,8 +38,8 @@ class _ViewerState extends State<Viewer> {
         child: Column(
           children: [
             ViewerGrid(this.widget.sensorValues),
-            ViewerButton('Back'),
-            ViewerButton('Exit'),
+            ViewerButton('Back', this.widget.returnToIdle),
+            ViewerButton('Exit', null),
           ],
         ),
       ),

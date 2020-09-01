@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class ViewerButton extends StatelessWidget {
   final String buttonText;
-  //final Function clickHandler;
+  final Function clickHandler;
 
-  ViewerButton(this.buttonText);
+  ViewerButton(this.buttonText, this.clickHandler);
 
   @override
   Widget build(BuildContext context) {
@@ -12,11 +12,10 @@ class ViewerButton extends StatelessWidget {
       width: 160,
       height: 40,
       margin: const EdgeInsets.symmetric(vertical: 12),
-      child: RaisedButton(
+      child: FlatButton(
         shape: StadiumBorder(),
-        elevation: 0,
         color: Colors.white,
-        onPressed: () => print('Viewer button pressed'),
+        onPressed: clickHandler,
         child: Text(
           this.buttonText,
           textAlign: TextAlign.center,
