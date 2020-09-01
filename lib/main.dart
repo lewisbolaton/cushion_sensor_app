@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 //Third-party package imports
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 //Widget imports
 import './menu.dart';
@@ -33,6 +34,8 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
 
   var navigatorKey = GlobalKey<NavigatorState>();
 
+  ProgressDialog connectingDialog;
+
   bool get isConnected => connection != null && connection.isConnected;
 
   @override
@@ -55,6 +58,8 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
     sensorValues = List.generate(
         15, (_) => List.generate(15, (_) => rng.nextInt(100) / 100));
     initializeBTSettings();
+
+
   }
 
   @override
@@ -93,6 +98,8 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
   }
 
   void goToViewing() async {
+
+
     //Check if Bluetooth is enabled and connected
     if (_bluetoothState == BluetoothState.STATE_ON) {
       await _connect();
@@ -168,6 +175,21 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
 
   Future<void> _connect() async {
     if (!isConnected) {
+      //Show loading dialog
+      this.connectingDialog = ProgressDialog(
+        navigatorKey.currentState.overlay.context,
+        type: ProgressDialogType.Normal,
+        isDismissible: false,
+      );
+      this.connectingDialog.style(
+        message: 'Connecting...',
+        progressWidget: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white),),
+        backgroundColor: Colors.teal,
+        padding: EdgeInsets.all(28),
+        borderRadius: 16,
+      );
+
+      this.connectingDialog.show();
       await BluetoothConnection.toAddress(sensorAddress).then((_connection) {
         connection = _connection;
 
@@ -181,7 +203,9 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
         }).onDone(() {
           this.switchToMenu();
         });
+        this.connectingDialog.hide();
       }).catchError((err) {
+        this.connectingDialog.hide();
         showConnectionDialog();
       });
     }
