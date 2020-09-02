@@ -21,10 +21,34 @@ class ViewerBox extends StatelessWidget {
 
   Color generateRGBO() {
     return Color.fromRGBO(
-        (_percentage * 255).toInt(),
-        ((1 - _percentage) * 255).toInt(),
+        calculateRedValue(),
+        calculateGreenValue(),
         0,
         1.0,
     );
+  }
+
+  int calculateRedValue() {
+    if (this._percentage < 0.0) {
+      return 0;
+    } else if (this._percentage <= 0.5) {
+      return ((this._percentage / 0.5) * 255).toInt();
+    } else if (this._percentage <= 1.0) {
+      return 255;
+    } else {
+      return 0;
+    }
+  }
+
+  int calculateGreenValue() {
+    if (this._percentage < 0.0) {
+      return 255;
+    } else if (this._percentage <= 0.5) {
+      return 255;
+    } else if (this._percentage <= 1.0) {
+      return (((1.0 - this._percentage) / 0.5) * 255).toInt();
+    } else {
+      return 255;
+    }
   }
 }

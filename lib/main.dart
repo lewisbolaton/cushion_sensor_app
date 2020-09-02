@@ -175,7 +175,7 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
 
   Future<void> _connect() async {
     if (!isConnected) {
-      //Show loading dialog
+      //Initialize loading dialog
       this.connectingDialog = ProgressDialog(
         navigatorKey.currentState.overlay.context,
         type: ProgressDialogType.Normal,
@@ -201,13 +201,14 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
             sensorValues = chunkDoubles(flatValues, 15);
           });
         }).onDone(() {
+          this.connectingDialog.hide();
           this.switchToMenu();
         });
-        this.connectingDialog.hide();
       }).catchError((err) {
         this.connectingDialog.hide();
         showConnectionDialog();
       });
+      this.connectingDialog.hide();
     }
   }
 
