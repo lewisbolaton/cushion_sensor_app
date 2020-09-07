@@ -3,12 +3,20 @@ import 'package:flutter/material.dart';
 //Widget imports
 import './menu/title_text.dart';
 import './menu/menu_button.dart';
-import './menu/connection_dialog.dart';
+
+import './local_notifications_plugin.dart';
 
 class Menu extends StatelessWidget {
   final Function goToViewing;
 
   Menu(this.goToViewing);
+
+  /*
+  void _showBannerNotification() {
+    var notification = LocalNotificationsPlugin();
+    notification.showSingleNotification();
+  }
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +36,7 @@ class Menu extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   MenuButton('Start Viewing Pressure Generated Map', goToViewing),
-                  MenuButton('Exit', () => {
-                    showDialog(context: context, barrierDismissible: true, builder: (_) => ConnectionDialog()),
-                  }),
+                  MenuButton('Exit', null),
                 ]
               ),
             ),
