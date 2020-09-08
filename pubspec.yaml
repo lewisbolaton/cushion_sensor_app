@@ -25,7 +25,10 @@ dependencies:
     sdk: flutter
   flutter_bluetooth_serial: ^0.2.2
   progress_dialog: ^1.2.4
-  flutter_local_notifications: ^1.4.4+4
+  flutter_local_notifications:
+    git:
+      url: https://github.com/lewisbolaton/flutter_local_notifications
+      path: flutter_local_notifications
 
 
   # The following adds the Cupertino Icons font to your application.

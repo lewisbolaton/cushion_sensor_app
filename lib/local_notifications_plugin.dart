@@ -48,5 +48,47 @@ class LocalNotificationsPlugin {
       payload: 'New Payload', // Notification Payload
     );
   }
+
+  Future<void> showMultiplePeriodicNotification() async {
+    var androidChannelSpecifics = AndroidNotificationDetails(
+      'CHANNEL_ID 3',
+      'CHANNEL_NAME 3',
+      "CHANNEL_DESCRIPTION 3",
+      importance: Importance.Max,
+      priority: Priority.High,
+      styleInformation: DefaultStyleInformation(true, true),
+    );
+    var iosChannelSpecifics = IOSNotificationDetails();
+    var platformChannelSpecifics =
+    NotificationDetails(androidChannelSpecifics, iosChannelSpecifics);
+
+    await this._localNotificationsPlugin.periodicallyShow(
+      3,
+      'Advanced hourly by 58 minutes',
+      'This notification starts 58 minutes before first trigger',
+      RepeatInterval.Hourly,
+      platformChannelSpecifics,
+      payload: 'Test Payload',
+      advance: Duration(minutes: 58),
+    );
+    await this._localNotificationsPlugin.periodicallyShow(
+      4,
+      'Advanced hourly by 56 minutes',
+      'This notification starts 56 minutes before first trigger',
+      RepeatInterval.Hourly,
+      platformChannelSpecifics,
+      payload: 'Test Payload',
+      advance: Duration(minutes: 56),
+    );
+    await this._localNotificationsPlugin.periodicallyShow(
+      5,
+      'Advanced hourly by 54 minutes',
+      'This notification starts 54 minutes before first trigger',
+      RepeatInterval.Hourly,
+      platformChannelSpecifics,
+      payload: 'Test Payload',
+      advance: Duration(minutes: 54),
+    );
+  }
 }
 

@@ -11,12 +11,17 @@ class Menu extends StatelessWidget {
 
   Menu(this.goToViewing);
 
-
+  /*
   void _showBannerNotification() {
     var notification = LocalNotificationsPlugin();
     notification.showSingleNotification();
   }
+  */
 
+  void _startPeriodicNotification() {
+    var notification = LocalNotificationsPlugin();
+    notification.showMultiplePeriodicNotification();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +41,7 @@ class Menu extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   MenuButton('Start Viewing Pressure Generated Map', goToViewing),
-                  MenuButton('Exit', this._showBannerNotification),
+                  MenuButton('Exit', this._startPeriodicNotification),
                 ]
               ),
             ),

@@ -72,9 +72,11 @@ packages:
   flutter_local_notifications:
     dependency: "direct main"
     description:
-      name: flutter_local_notifications
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: flutter_local_notifications
+      ref: HEAD
+      resolved-ref: "2f2bce5f5d66803dab9f2e0d35d4fff56f9ae678"
+      url: "https://github.com/lewisbolaton/flutter_local_notifications"
+    source: git
     version: "1.4.4+4"
   flutter_local_notifications_platform_interface:
     dependency: transitive
