@@ -11,6 +11,9 @@ import './menu.dart';
 import './viewer.dart';
 import './menu/connection_dialog.dart';
 
+//Plugin imports
+import './local_notifications_plugin.dart';
+
 const String sensorAddress = 'B8:27:EB:7B:98:0B';
 
 void main() => runApp(CushionSensorApp());
@@ -34,7 +37,9 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
 
   var navigatorKey = GlobalKey<NavigatorState>();
 
+  //Notification and dialog variables
   ProgressDialog connectingDialog;
+  LocalNotificationsPlugin notificationsPlugin;
 
   bool get isConnected => connection != null && connection.isConnected;
 
@@ -58,8 +63,8 @@ class _CushionSensorAppState extends State<CushionSensorApp> {
     sensorValues = List.generate(
         15, (_) => List.generate(15, (_) => rng.nextInt(100) / 100));
     initializeBTSettings();
-
-
+    notificationsPlugin = LocalNotificationsPlugin();
+    notificationsPlugin.startShowingPeriodicReminder();
   }
 
   @override

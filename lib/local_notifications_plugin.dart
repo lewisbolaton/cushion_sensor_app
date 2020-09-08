@@ -25,11 +25,11 @@ class LocalNotificationsPlugin {
     }
   }
 
-   Future<void> showSingleNotification() async {
+   Future<void> showSingleReminder() async {
     var androidChannelSpecifics = AndroidNotificationDetails(
-      'CHANNEL_ID',
-      'CHANNEL_NAME',
-      "CHANNEL_DESCRIPTION",
+      'single_reminder',
+      'Single reminder',
+      'Notification channel for non-periodic reminders only shown once',
       importance: Importance.Max,
       priority: Priority.High,
       playSound: true,
@@ -41,54 +41,38 @@ class LocalNotificationsPlugin {
         androidChannelSpecifics, iosChannelSpecifics
     );
     await this._localNotificationsPlugin.show(
-      0,                      // Notification ID
-      'Pressure Reminder',           // Notification Title
-      'The device has quantified that 12 minutes has passed. Please adjust the sitting position of your child',            // Notification Body, set as null to remove the body
+      0,
+      'Pressure warning',
+      'Please adjust the sitting position of your child',
       platformChannelSpecifics,
-      payload: 'New Payload', // Notification Payload
     );
   }
 
-  Future<void> showMultiplePeriodicNotification() async {
+  Future<void> startShowingPeriodicReminder() async {
     var androidChannelSpecifics = AndroidNotificationDetails(
-      'CHANNEL_ID 3',
-      'CHANNEL_NAME 3',
-      "CHANNEL_DESCRIPTION 3",
+      'periodic_reminder',
+      'Periodic reminder',
+      'Notification channel for reminder shown every 10 minutes',
       importance: Importance.Max,
       priority: Priority.High,
+      playSound: true,
+      timeoutAfter: 5000,
       styleInformation: DefaultStyleInformation(true, true),
     );
     var iosChannelSpecifics = IOSNotificationDetails();
-    var platformChannelSpecifics =
-    NotificationDetails(androidChannelSpecifics, iosChannelSpecifics);
-
-    await this._localNotificationsPlugin.periodicallyShow(
-      3,
-      'Advanced hourly by 58 minutes',
-      'This notification starts 58 minutes before first trigger',
-      RepeatInterval.Hourly,
-      platformChannelSpecifics,
-      payload: 'Test Payload',
-      advance: Duration(minutes: 58),
+    var platformChannelSpecifics = NotificationDetails(
+        androidChannelSpecifics, iosChannelSpecifics
     );
-    await this._localNotificationsPlugin.periodicallyShow(
-      4,
-      'Advanced hourly by 56 minutes',
-      'This notification starts 56 minutes before first trigger',
-      RepeatInterval.Hourly,
-      platformChannelSpecifics,
-      payload: 'Test Payload',
-      advance: Duration(minutes: 56),
-    );
-    await this._localNotificationsPlugin.periodicallyShow(
-      5,
-      'Advanced hourly by 54 minutes',
-      'This notification starts 54 minutes before first trigger',
-      RepeatInterval.Hourly,
-      platformChannelSpecifics,
-      payload: 'Test Payload',
-      advance: Duration(minutes: 54),
-    );
+    for (int i = 50; i >= 0; i -= 10) {
+      await this._localNotificationsPlugin.periodicallyShow(
+        60 - i,
+        'Pressure reminder',
+        'Please adjust the sitting position of your child',
+        RepeatInterval.Hourly,
+        platformChannelSpecifics,
+        advance: Duration(minutes: i),
+      );
+    }
   }
 }
 
